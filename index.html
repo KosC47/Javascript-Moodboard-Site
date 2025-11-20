@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moodboard – Moodboard</title>
+
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+    default-src 'self';
+    img-src 'self' https://picsum.photos https://fastly.picsum.photos data:;
+    script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+    style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+    connect-src 'self' https://picsum.photos https://cdn.jsdelivr.net;
+  "
+    />
+
+    <!-- Bootstrap CSS (responsive framework) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Our styles -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Skip link for accessibility -->
+    <a href="#board" class="skip-link">Skip to moodboard</a>
+
+    <!-- Simple navbar -->
+    <header class="mb-3">
+      <nav class="navbar navbar-dark bg-dark navbar-expand-md">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="index.html">Moodboard</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNav"
+            aria-controls="mainNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link active" href="index.html">Moodboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="contact.html">Contact</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Moodboard grid -->
+    <main
+      id="board"
+      class="masonry"
+      aria-busy="false"
+      aria-live="polite"
+    ></main>
+
+    <!-- Veil overlay -->
+    <div
+      id="veil"
+      class="veil"
+      aria-hidden="true"
+      aria-label="Loading new moodboard"
+    ></div>
+
+    <!-- accidently named generate button ID something completely different then wondered why it wasnt working. Used devtools console to see it was null, then checked HTML for mismatched ID -->
+    <!-- Controls -->
+    <div class="toolbar" aria-label="Moodboard controls">
+      <button id="regen" class="btn btn-sm btn-light">Generate</button>
+      <button id="toggleGap" class="btn btn-sm btn-light">Toggle Gap</button>
+    </div>
+
+    <!-- Moodboard script (your original logic) -->
+    <script src="script.js" defer></script>
+  </body>
+</html>

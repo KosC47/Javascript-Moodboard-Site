@@ -1,0 +1,138 @@
+:root {
+  --gutter: 4px; /* switch to 0 via JS for edge-to-edge tiles */
+  --cols: 6; /* desktop columns */
+}
+
+/* Global */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #050505;
+  color: #ffffff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar section */
+header {
+  flex: 0 0 auto;
+}
+
+/* Moodboard container fills the remaining height */
+.masonry {
+  flex: 1 1 auto;
+}
+
+/* Masonry layout */
+.masonry {
+  column-count: var(--cols);
+  column-gap: var(--gutter);
+  padding: var(--gutter);
+  transition: opacity 200ms ease-out;
+}
+
+.item {
+  break-inside: avoid;
+  margin-bottom: var(--gutter);
+  background: #111;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.item img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Veil overlay */
+.veil {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease-out;
+  z-index: 5;
+}
+
+.veil.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Optional dim state while regenerating */
+.masonry.dim {
+  opacity: 0.4;
+}
+
+/* Toolbar (buttons) */
+.toolbar {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  color: #000000;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+/* Contact page tweaks */
+#pageTitle {
+  font-weight: 700;
+}
+
+/* Invalid field styles */
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+/* Responsive: fewer columns on smaller screens */
+@media (max-width: 1100px) {
+  :root {
+    --cols: 5;
+  }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --cols: 4;
+  }
+}
+
+@media (max-width: 700px) {
+  :root {
+    --cols: 3;
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --cols: 2;
+  }
+}
