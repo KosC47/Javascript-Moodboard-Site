@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Moodboard – Moodboard</title>
 
+    <!-- Bug Fix
+    Error seen in Chrome DevTools console, My CSP only allowed images from https://picsum.photos, but Picsum actually redirects to https://fastly.picsum.photos. The browser checks the final URL against CSP, saw fastly.picsum.photos was not allowed, and blocked the images. -->
+    <!-- CSP: allows our scripts, Picsum images, and Bored API in case we reuse -->
     <meta
       http-equiv="Content-Security-Policy"
       content="
@@ -74,7 +77,7 @@
       aria-hidden="true"
       aria-label="Loading new moodboard"
     ></div>
-
+    <!-- Bug fix -->
     <!-- accidently named generate button ID something completely different then wondered why it wasnt working. Used devtools console to see it was null, then checked HTML for mismatched ID -->
     <!-- Controls -->
     <div class="toolbar" aria-label="Moodboard controls">

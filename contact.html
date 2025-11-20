@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Moodboard – Info And Contact</title>
 
+    <!-- Bug Fix
+     Error seen in Chrome DevTools console, My CSP only allowed images from https://picsum.photos, but Picsum actually redirects to https://fastly.picsum.photos. The browser checks the final URL against CSP, saw fastly.picsum.photos was not allowed, and blocked the images. -->
     <meta
       http-equiv="Content-Security-Policy"
       content="

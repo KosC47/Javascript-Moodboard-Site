@@ -11,6 +11,10 @@
  *  - Demonstrates basic Object-Oriented Programming
  */
 
+// Bug Fix
+// The Bored API was throwing out API errors. The status code was 200, but because there was no Access-Control-Allow-Origin, the browser refused to give my code access to the data.
+// Changed code to include advice slip API instead which included CORS
+
 // Advice Slip (random advice)
 const ACTIVITY_API_URL = "https://api.adviceslip.com/advice";
 
@@ -73,6 +77,11 @@ class FormValidator {
   onSubmit(e) {
     e.preventDefault();
     let valid = true;
+
+    // Bug Fix
+    // The msg field on contact form didnt show any error, even when it was empty.
+    // other fields validated correctly, nothing which dispalyed error.
+    // Fix use correct element name lol.
 
     const name = this.form.elements["name"];
     const email = this.form.elements["email"];
