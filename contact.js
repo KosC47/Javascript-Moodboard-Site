@@ -9,9 +9,9 @@
  *  - Lets the user fetch a new advice on button click
  *  - Validates the contact form and shows clear error messages
  *  - Can write form data to a .txt file and read a .txt file
- *  - Demonstrates Object-Oriented Programming
+ *  - Saves valid form data to localStorage and restores it on load
+ *  - Demonstrates basic Object-Oriented Programming
  */
-
 // Bug Fix
 // The Bored API was throwing out API errors. The status code was 200, but because there was no Access-Control-Allow-Origin, the browser refused to give my code access to the data.
 // Changed code to include advice slip API instead which included CORS
@@ -51,6 +51,7 @@ class IdeaService {
  * FormValidator
  * -------------
  * Validates the contact form fields and displays error messages.
+ * Also saves valid form data to localStorage and restores it.
  */
 class FormValidator {
   /**
@@ -67,19 +68,47 @@ class FormValidator {
   }
 
   /**
-   * Attach the submit handler.
+   * Attach the submit handler and restore any saved data.
    */
   init() {
+    // Restore previously saved data, if any
+    this.restoreFromStorage();
+
+    // Attach submit handler
     this.form.addEventListener("submit", (e) => this.onSubmit(e));
   }
 
-  // Bug Fix
-  // The msg field on contact form didnt show any error, even when it was empty.
-  // other fields validated correctly, nothing which dispalyed error.
-  // Fix use correct element name lol.
+  /**
+   * Restores saved form data from localStorage (if any)
+   * and fills the form fields.
+   */
+  restoreFromStorage() {
+    try {
+      const raw = localStorage.getItem("contactFormData");
+      if (!raw) return;
+
+      const data = JSON.parse(raw);
+
+      if (data.name && this.form.elements["name"]) {
+        this.form.elements["name"].value = data.name;
+      }
+      if (data.email && this.form.elements["email"]) {
+        this.form.elements["email"].value = data.email;
+      }
+      if (data.message && this.form.elements["message"]) {
+        this.form.elements["message"].value = data.message;
+      }
+    } catch (err) {
+      console.warn(
+        "Could not restore contact form data from localStorage:",
+        err
+      );
+    }
+  }
 
   /**
    * Handle form submission: validate fields and show messages.
+   * If valid, save to localStorage.
    * @param {SubmitEvent} e
    */
   onSubmit(e) {
@@ -101,7 +130,7 @@ class FormValidator {
       this.statusEl.textContent = "";
     }
 
-    // Name
+    // Name validation
     if (!name.value.trim()) {
       this.setError(
         name,
@@ -111,7 +140,7 @@ class FormValidator {
       valid = false;
     }
 
-    // Email
+    // Email validation
     if (!email.value.trim()) {
       this.setError(
         email,
@@ -128,7 +157,7 @@ class FormValidator {
       valid = false;
     }
 
-    // Message
+    // Message validation
     const msg = message.value.trim();
     if (!msg) {
       this.setError(
@@ -146,6 +175,7 @@ class FormValidator {
       valid = false;
     }
 
+    // If invalid, show status and stop
     if (!valid) {
       if (this.statusEl) {
         this.statusEl.textContent =
@@ -154,6 +184,20 @@ class FormValidator {
       return;
     }
 
+    // SAVE TO LOCALSTORAGE HERE (only when valid)
+    const formData = {
+      name: name.value.trim(),
+      email: email.value.trim(),
+      message: msg,
+    };
+
+    try {
+      localStorage.setItem("contactFormData", JSON.stringify(formData));
+    } catch (err) {
+      console.warn("Could not save contact form data to localStorage:", err);
+    }
+
+    // Show success and reset form
     if (this.statusEl) {
       this.statusEl.textContent =
         "Thanks! Your message has passed validation. In a real project this would now be securely sent to the server via HTTPS POST.";
@@ -210,7 +254,7 @@ class ContactPage {
 
   /**
    * Set up event listeners for:
-   *  - idea loading
+   *  - advice loading
    *  - form validation
    *  - text file download
    *  - text file upload
