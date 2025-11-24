@@ -88,7 +88,7 @@ async function generateBoard(count = 80) {
     const h = colW * ratios[Math.floor(Math.random() * ratios.length)];
     return imageUrl(colW, h);
   });
-
+  // Displays warning for images failing to preload
   let images = [];
   try {
     images = await Promise.all(urls.map(preload));

@@ -145,6 +145,29 @@
           <p id="formStatus" class="mt-3" role="status" aria-live="polite"></p>
         </form>
       </section>
+
+      <!-- Text file WRITE -->
+      <section class="mt-4">
+        <h2 class="h5">Download Data as Text</h2>
+        <button
+          id="downloadText"
+          class="btn btn-secondary btn-sm"
+          type="button"
+        >
+          Download Message as Text
+        </button>
+      </section>
+
+      <!-- Text file READ -->
+      <section class="mt-4">
+        <h2 class="h5">Upload a Text File</h2>
+        <input id="fileInput" type="file" accept=".txt" class="form-control" />
+        <p
+          id="fileContents"
+          class="alert alert-info mt-2"
+          style="display: none"
+        ></p>
+      </section>
     </main>
 
     <!-- Config and contact script (contains OOP + Bored API) -->

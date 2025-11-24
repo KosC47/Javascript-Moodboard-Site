@@ -8,7 +8,8 @@
  *  - Loads a random Advice from an external API
  *  - Lets the user fetch a new advice on button click
  *  - Validates the contact form and shows clear error messages
- *  - Demonstrates basic Object-Oriented Programming
+ *  - Can write form data to a .txt file and read a .txt file
+ *  - Demonstrates Object-Oriented Programming
  */
 
 // Bug Fix
@@ -21,15 +22,16 @@ const ACTIVITY_API_URL = "https://api.adviceslip.com/advice";
 /**
  * IdeaService
  * -----------
- * This class is for talking to the Advice Slip API.
- * It hides the details of the fetch() call and just returns a string.
+ * Talks to the Advice Slip API and returns a single advice string.
  */
-
 class IdeaService {
+  /**
+   * Fetches a random piece of advice from the Advice Slip API.
+   * @returns {Promise<string>} Advice text.
+   */
   async getIdea() {
     const res = await fetch(ACTIVITY_API_URL, {
-      // avoid caching old advice
-      cache: "no-cache",
+      cache: "no-cache", // try not to reuse old advice
     });
 
     if (!res.ok) {
@@ -37,7 +39,6 @@ class IdeaService {
     }
 
     const data = await res.json();
-    // Advice Slip format
     const advice =
       data.slip && data.slip.advice
         ? data.slip.advice
@@ -49,49 +50,56 @@ class IdeaService {
 /**
  * FormValidator
  * -------------
- * This class handles client side validation of the contact form.
- * It checks the name, email and message fields and displays error messages.
+ * Validates the contact form fields and displays error messages.
  */
-
 class FormValidator {
   /**
-   * Creates instance
-   * @param {HTMLFormElement} form
-   * @param {number} minLength - minimum message length
+   * @param {HTMLFormElement} form - The contact form element.
+   * @param {number} minLength - Minimum message length.
    */
-
   constructor(form, minLength) {
+    /** @type {HTMLFormElement} */
     this.form = form;
+    /** @type {number} */
     this.minLength = minLength;
+    /** @type {HTMLElement | null} */
     this.statusEl = document.getElementById("formStatus");
   }
 
   /**
-   * Attaches the submit event handler to the form.
+   * Attach the submit handler.
    */
-
   init() {
     this.form.addEventListener("submit", (e) => this.onSubmit(e));
   }
 
+  // Bug Fix
+  // The msg field on contact form didnt show any error, even when it was empty.
+  // other fields validated correctly, nothing which dispalyed error.
+  // Fix use correct element name lol.
+
+  /**
+   * Handle form submission: validate fields and show messages.
+   * @param {SubmitEvent} e
+   */
   onSubmit(e) {
     e.preventDefault();
     let valid = true;
 
-    // Bug Fix
-    // The msg field on contact form didnt show any error, even when it was empty.
-    // other fields validated correctly, nothing which dispalyed error.
-    // Fix use correct element name lol.
-
+    /** @type {HTMLInputElement} */
     const name = this.form.elements["name"];
+    /** @type {HTMLInputElement} */
     const email = this.form.elements["email"];
+    /** @type {HTMLTextAreaElement} */
     const message = this.form.elements["message"];
 
-    // clear previous errors
+    // Clear previous errors
     this.clearError(name, "nameError");
     this.clearError(email, "emailError");
     this.clearError(message, "messageError");
-    this.statusEl.textContent = "";
+    if (this.statusEl) {
+      this.statusEl.textContent = "";
+    }
 
     // Name
     if (!name.value.trim()) {
@@ -137,27 +145,39 @@ class FormValidator {
       );
       valid = false;
     }
-    // if anything failed it will display a message and stop
+
     if (!valid) {
-      this.statusEl.textContent =
-        "Please fix the highlighted fields and try again.";
+      if (this.statusEl) {
+        this.statusEl.textContent =
+          "Please fix the highlighted fields and try again.";
+      }
       return;
     }
 
-    // This displays the successful validation msg
-    this.statusEl.textContent =
-      "Thanks! Your message has passed validation. In a real project this would now be securely sent to the server via HTTPS POST.";
+    if (this.statusEl) {
+      this.statusEl.textContent =
+        "Thanks! Your message has passed validation. In a real project this would now be securely sent to the server via HTTPS POST.";
+    }
     this.form.reset();
   }
 
-  // Marks field as invalid displays error
+  /**
+   * Mark a field invalid and show an error message.
+   * @param {HTMLInputElement | HTMLTextAreaElement} field
+   * @param {string} id - Error element id.
+   * @param {string} message - Error message text.
+   */
   setError(field, id, message) {
     const el = document.getElementById(id);
     field.classList.add("is-invalid");
     if (el) el.textContent = message;
   }
 
-  // clears errors removes error msg
+  /**
+   * Clear the error for a field.
+   * @param {HTMLInputElement | HTMLTextAreaElement} field
+   * @param {string} id
+   */
   clearError(field, id) {
     const el = document.getElementById(id);
     field.classList.remove("is-invalid");
@@ -168,25 +188,19 @@ class FormValidator {
 /**
  * ContactPage
  * -----------
- * This class coordinates everything on the contact page.
- * It:
- *  - Sets up the advice loading feature using IdeaService
- *  - Sets up the "New idea" button
- *  - Creates and starts a FormValidator for the contact form
+ * Wires up the advice feature, form validation, and text file read/write.
  */
-
 class ContactPage {
-  /**
-   * Creates new ContactPage instance and finds DOM elements.
-   * Also reads values such as the minimum message length.
-   */
   constructor() {
+    /** @type {HTMLElement | null} */
     this.ideaText = document.getElementById("ideaText");
+    /** @type {HTMLButtonElement | null} */
     this.refreshBtn = document.getElementById("refreshIdea");
+    /** @type {IdeaService} */
     this.ideaService = new IdeaService();
 
-    // Fallback if CONFIG is missing
     const defaultMin = 20;
+    /** @type {number} */
     const minFromConfig =
       window.CONFIG && typeof CONFIG.minMessageLength === "number"
         ? CONFIG.minMessageLength
@@ -195,28 +209,48 @@ class ContactPage {
   }
 
   /**
-   * Sets up event listeners and initial behaviour on the contact page.
-   * Called once after creating the ContactPage object.
+   * Set up event listeners for:
+   *  - idea loading
+   *  - form validation
+   *  - text file download
+   *  - text file upload
    */
-
   init() {
-    // advice feature
+    // Advice feature
     if (this.ideaText && this.refreshBtn) {
-      this.loadIdea(); // initial load
-      this.refreshBtn.addEventListener("click", () => {
-        this.loadIdea(); // NEW ADVICE button
-      });
+      this.loadIdea(); // initial
+      this.refreshBtn.addEventListener("click", () => this.loadIdea());
     }
 
     // Form validator
     const form = document.getElementById("contactForm");
-    if (form) {
+    if (form instanceof HTMLFormElement) {
       const validator = new FormValidator(form, this.minMessageLength);
       validator.init();
     }
+
+    // TEXT FILE WRITE feature
+    const downloadBtn = document.getElementById("downloadText");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", () => {
+        this.downloadTextFile();
+      });
+    }
+
+    // TEXT FILE READ feature
+    const fileInput = document.getElementById("fileInput");
+    if (fileInput) {
+      fileInput.addEventListener("change", (event) => {
+        this.readUploadedFile(event);
+      });
+    }
   }
-  // Loads advice string from advice api
-  // if the API fails it will display an error msg
+
+  /**
+   * Load an advice string from the API and display it.
+   * Shows a simple error message if the API fails.
+   * @returns {Promise<void>}
+   */
   async loadIdea() {
     if (!this.ideaText) return;
 
@@ -230,7 +264,62 @@ class ContactPage {
       this.ideaText.textContent = "Could not load an idea right now.";
     }
   }
+
+  /**
+   * Creates a .txt file using current form values + advice
+   * and triggers a download in the browser.
+   */
+  downloadTextFile() {
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const messageInput = document.getElementById("message");
+
+    const name = nameInput?.value || "N/A";
+    const email = emailInput?.value || "N/A";
+    const message = messageInput?.value || "N/A";
+    const idea = this.ideaText?.textContent || "No advice loaded";
+
+    const text =
+      "Moodboard Contact Export\n" +
+      "-------------------------\n" +
+      `Name: ${name}\n` +
+      `Email: ${email}\n` +
+      `Message: ${message}\n` +
+      `Advice: ${idea}\n`;
+
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contact-export.txt";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Reads a .txt file uploaded by the user and displays its contents.
+   * @param {Event} event - File input change event.
+   */
+  readUploadedFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const output = document.getElementById("fileContents");
+      if (!output) return;
+      output.textContent = text;
+      output.style.display = "block";
+    };
+
+    reader.readAsText(file);
+  }
 }
 
+// Boot up the contact page
 const page = new ContactPage();
 page.init();
